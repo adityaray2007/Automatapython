@@ -1,0 +1,408 @@
+{
+  "presets": [
+    {
+      "id": "ends-with-ab",
+      "title": "Ends with “ab”",
+      "nfa_states": 3,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 3,
+      "accepting": 1,
+      "steps": 6,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "third-from-last-a",
+      "title": "3rd symbol from the end is “a”",
+      "nfa_states": 4,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 8,
+      "accepting": 4,
+      "steps": 16,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "contains-101",
+      "title": "Contains substring “101”",
+      "nfa_states": 4,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 6,
+      "accepting": 3,
+      "steps": 12,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "starts-with-0-dead-state",
+      "title": "Starts with 0 (dead state ∅)",
+      "nfa_states": 2,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 3,
+      "accepting": 1,
+      "steps": 6,
+      "has_dead": true,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "a-star-accepts-empty",
+      "title": "a* (accepts the empty string)",
+      "nfa_states": 1,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 2,
+      "accepting": 1,
+      "steps": 4,
+      "has_dead": true,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "contains-aa",
+      "title": "Exercise 6: Contains substring “aa”",
+      "nfa_states": 3,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 4,
+      "accepting": 2,
+      "steps": 8,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "even-zeros",
+      "title": "Even number of 0s",
+      "nfa_states": 2,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 2,
+      "accepting": 1,
+      "steps": 4,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "ends-with-11",
+      "title": "Binary strings ending in “11”",
+      "nfa_states": 3,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 3,
+      "accepting": 1,
+      "steps": 6,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "second-last-one",
+      "title": "2nd symbol from the end is 1",
+      "nfa_states": 3,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 4,
+      "accepting": 2,
+      "steps": 8,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "contains-abb",
+      "title": "Contains substring “abb”",
+      "nfa_states": 4,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 6,
+      "accepting": 3,
+      "steps": 12,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "ends-with-ba",
+      "title": "Ends with “ba”",
+      "nfa_states": 3,
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "dfa_states": 3,
+      "accepting": 1,
+      "steps": 6,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "same-first-last",
+      "title": "First and last symbol are equal",
+      "nfa_states": 5,
+      "alphabet": [
+        "0",
+        "1"
+      ],
+      "dfa_states": 5,
+      "accepting": 2,
+      "steps": 10,
+      "has_dead": false,
+      "strings": 511,
+      "mismatches": 0
+    },
+    {
+      "id": "length-mod-2-or-3",
+      "title": "Length divisible by 2 or 3 (unary)",
+      "nfa_states": 6,
+      "alphabet": [
+        "a"
+      ],
+      "dfa_states": 7,
+      "accepting": 5,
+      "steps": 7,
+      "has_dead": false,
+      "strings": 9,
+      "mismatches": 0
+    }
+  ],
+  "scaling": [
+    {
+      "n": 1,
+      "nfa_states": 2,
+      "dfa_states": 2,
+      "expected": 2,
+      "ms": 0.01
+    },
+    {
+      "n": 2,
+      "nfa_states": 3,
+      "dfa_states": 4,
+      "expected": 4,
+      "ms": 0.02
+    },
+    {
+      "n": 3,
+      "nfa_states": 4,
+      "dfa_states": 8,
+      "expected": 8,
+      "ms": 0.04
+    },
+    {
+      "n": 4,
+      "nfa_states": 5,
+      "dfa_states": 16,
+      "expected": 16,
+      "ms": 0.09
+    },
+    {
+      "n": 5,
+      "nfa_states": 6,
+      "dfa_states": 32,
+      "expected": 32,
+      "ms": 0.19
+    },
+    {
+      "n": 6,
+      "nfa_states": 7,
+      "dfa_states": 64,
+      "expected": 64,
+      "ms": 0.48
+    },
+    {
+      "n": 7,
+      "nfa_states": 8,
+      "dfa_states": 128,
+      "expected": 128,
+      "ms": 0.95
+    },
+    {
+      "n": 8,
+      "nfa_states": 9,
+      "dfa_states": 256,
+      "expected": 256,
+      "ms": 3.76
+    },
+    {
+      "n": 9,
+      "nfa_states": 10,
+      "dfa_states": 512,
+      "expected": 512,
+      "ms": 4.34
+    },
+    {
+      "n": 10,
+      "nfa_states": 11,
+      "dfa_states": 1024,
+      "expected": 1024,
+      "ms": 10.93
+    },
+    {
+      "n": 11,
+      "nfa_states": 12,
+      "dfa_states": 2048,
+      "expected": 2048,
+      "ms": 22.53
+    }
+  ],
+  "cases": [
+    {
+      "id": "T01",
+      "feature": "Preset 'Ends with ab' - Accepted string",
+      "input": "input = 'aab'",
+      "expected": "Accept",
+      "actual": "Accept (NFA agrees)",
+      "status": "Pass"
+    },
+    {
+      "id": "T02",
+      "feature": "Preset 'Ends with ab' - Rejected string",
+      "input": "input = 'abb'",
+      "expected": "Reject",
+      "actual": "Reject (NFA agrees)",
+      "status": "Pass"
+    },
+    {
+      "id": "T03",
+      "feature": "Preset 'Ends with ab' - Shortest accepted string",
+      "input": "input = 'ab'",
+      "expected": "Accept",
+      "actual": "Accept (NFA agrees)",
+      "status": "Pass"
+    },
+    {
+      "id": "T04",
+      "feature": "Preset 'Ends with ab' - Empty string ε",
+      "input": "input = (empty string)",
+      "expected": "Reject",
+      "actual": "Reject (NFA agrees)",
+      "status": "Pass"
+    },
+    {
+      "id": "T05",
+      "feature": "Symbol outside the alphabet",
+      "input": "input = 'abc' (c not in {a,b})",
+      "expected": "Warning, string rejected",
+      "actual": "Rejected; message: Symbol \"c\" is not in the alphabet.",
+      "status": "Pass"
+    },
+    {
+      "id": "T06",
+      "feature": "Duplicate state names",
+      "input": "states = 'q0, q0'",
+      "expected": "Validation error",
+      "actual": "State names must be unique.",
+      "status": "Pass"
+    },
+    {
+      "id": "T07",
+      "feature": "ε in the alphabet",
+      "input": "alphabet = 'a, eps'",
+      "expected": "Friendly error",
+      "actual": "ε-transitions are not supported here — this simulator handles plain NFAs only.",
+      "status": "Pass"
+    },
+    {
+      "id": "T08",
+      "feature": "Multi-character symbol",
+      "input": "alphabet = 'a, ab'",
+      "expected": "Validation error",
+      "actual": "Input symbol \"ab\" must be a single character.",
+      "status": "Pass"
+    },
+    {
+      "id": "T09",
+      "feature": "Transition to unknown state",
+      "input": "delta(q0,a) = q9",
+      "expected": "Validation error",
+      "actual": "δ(q0, a) points to unknown state \"q9\".",
+      "status": "Pass"
+    },
+    {
+      "id": "T10",
+      "feature": "More than 12 states",
+      "input": "13 states",
+      "expected": "Validation error",
+      "actual": "At most 12 states are supported.",
+      "status": "Pass"
+    },
+    {
+      "id": "T11",
+      "feature": "Missing transition -> dead state",
+      "input": "delta(q0,b) = (empty)",
+      "expected": "DFA gets explicit dead state ∅",
+      "actual": "DFA states: ['{q0}', '{q1}', '∅']; dead state present = True",
+      "status": "Pass"
+    },
+    {
+      "id": "T12",
+      "feature": "Dead state is a trap",
+      "input": "preset 'Starts with 0'",
+      "expected": "∅ loops to ∅ on every symbol",
+      "actual": "loops = True",
+      "status": "Pass"
+    },
+    {
+      "id": "T13",
+      "feature": "Start state is accepting",
+      "input": "preset 'a*', input = ε",
+      "expected": "Accept",
+      "actual": "Accept",
+      "status": "Pass"
+    },
+    {
+      "id": "T14",
+      "feature": "Exponential blow-up",
+      "input": "preset '3rd symbol from end is a'",
+      "expected": "8 DFA states (2^3)",
+      "actual": "8 DFA states",
+      "status": "Pass"
+    },
+    {
+      "id": "T15",
+      "feature": "Batch parser",
+      "input": "'ab', '<empty>', blank line, 'bab'",
+      "expected": "3 strings: ab, ε, bab",
+      "actual": "3 strings: ['ab', '', 'bab']",
+      "status": "Pass"
+    },
+    {
+      "id": "T16",
+      "feature": "NFA vs DFA equivalence",
+      "input": "every string up to length 8, all 13 presets (6141 checks)",
+      "expected": "0 disagreements",
+      "actual": "0 disagreements",
+      "status": "Pass"
+    }
+  ],
+  "total_equiv_checks": 6141
+}

@@ -1,4 +1,4 @@
-# Subset Lab (Python): NFA → DFA Conversion Simulator
+# Automata Workbench (Python): NFA → DFA Conversion Simulator
 
 An educational, interactive web simulator for Automata Theory (**Topic 1: NFA → DFA Conversion**). Built with **Python 3**, **Streamlit**, and **Graphviz DOT**, designed specifically for university students to explore subset construction and confidently explain every line of code during viva examinations.
 
@@ -6,7 +6,7 @@ An educational, interactive web simulator for Automata Theory (**Topic 1: NFA �
 
 ## 1. What It Is & Key Features
 
-**Subset Lab** visualizes the deterministic collapse of Non-Deterministic Finite Automata (NFA) into Deterministic Finite Automata (DFA) using the classic **subset construction** algorithm (Rabin-Scott powerset construction).
+**Automata Workbench** visualizes the deterministic collapse of Non-Deterministic Finite Automata (NFA) into Deterministic Finite Automata (DFA) using the classic **subset construction** algorithm (Rabin-Scott powerset construction).
 
 - **Pure-Logic Architecture**: 100% pure Python automata engine in `algorithm/` with zero UI dependencies, written at a clean beginner level with extensive English comments.
 - **Side-by-Side DFA & Construction View**: Watch the DFA state diagram and step-by-step subset construction progress side-by-side in real time without scrolling.

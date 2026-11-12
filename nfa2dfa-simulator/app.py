@@ -1,9 +1,10 @@
-"""Subset Lab — NFA to DFA Conversion Simulator.
+"""Automata Workbench — NFA to DFA Conversion Simulator.
 
 Thin Streamlit UI layer. All automata logic lives in algorithm/.
 """
 from __future__ import annotations
 
+import utils.session
 import dataclasses
 import html
 import json
@@ -18,10 +19,11 @@ from algorithm.simulate import parse_batch, simulate_dfa, simulate_nfa
 from algorithm.subset_construction import set_id, subset_construction
 from algorithm.validate import NfaForm, build_nfa, split_list
 from ui.graphs import dfa_to_dot, nfa_to_dot
-from ui.styles import GLASS_CSS
+from ui.styles import build_css
 
-st.set_page_config(layout="wide", page_title="Subset Lab")
-st.markdown(GLASS_CSS, unsafe_allow_html=True)
+st.set_page_config(layout="wide", page_title="Automata Workbench")
+DARK = bool(st.session_state.get("dark_mode", False))
+st.markdown(build_css(DARK), unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
@@ -31,7 +33,7 @@ st.markdown(GLASS_CSS, unsafe_allow_html=True)
 EXTRA_PRESETS: dict[str, dict] = {
     "custom": {
         "id": "custom",
-        "title": "✨ Custom / Blank (Type Your Own NFA)",
+        "title": "Custom / Blank (Type Your Own NFA)",
         "description": "Start with a clean slate to define your own custom NFA.",
         "states": "",
         "alphabet": "",
@@ -66,9 +68,100 @@ EXTRA_PRESETS: dict[str, dict] = {
             "q1": {"0": "q0", "1": "q1"},
         },
     },
+    "ends-with-11": {
+        "id": "ends-with-11",
+        "title": "Binary strings ending in “11”",
+        "description": "Guess where the final 11 starts. Produces a 4-state DFA.",
+        "states": "q0, q1, q2",
+        "alphabet": "0, 1",
+        "start": "q0",
+        "accepts": ["q2"],
+        "cells": {
+            "q0": {"0": "q0", "1": "q0, q1"},
+            "q1": {"0": "", "1": "q2"},
+            "q2": {"0": "", "1": ""},
+        },
+    },
+    "second-last-one": {
+        "id": "second-last-one",
+        "title": "2nd symbol from the end is 1",
+        "description": "Classic exponential-blowup family (n = 2). Produces a 4-state DFA.",
+        "states": "q0, q1, q2",
+        "alphabet": "0, 1",
+        "start": "q0",
+        "accepts": ["q2"],
+        "cells": {
+            "q0": {"0": "q0", "1": "q0, q1"},
+            "q1": {"0": "q2", "1": "q2"},
+            "q2": {"0": "", "1": ""},
+        },
+    },
+    "contains-abb": {
+        "id": "contains-abb",
+        "title": "Contains substring “abb”",
+        "description": "Substring search over {a,b} with an absorbing accept state.",
+        "states": "q0, q1, q2, q3",
+        "alphabet": "a, b",
+        "start": "q0",
+        "accepts": ["q3"],
+        "cells": {
+            "q0": {"a": "q0, q1", "b": "q0"},
+            "q1": {"a": "", "b": "q2"},
+            "q2": {"a": "", "b": "q3"},
+            "q3": {"a": "q3", "b": "q3"},
+        },
+    },
+    "ends-with-ba": {
+        "id": "ends-with-ba",
+        "title": "Ends with “ba”",
+        "description": "Suffix matching over {a,b}.",
+        "states": "q0, q1, q2",
+        "alphabet": "a, b",
+        "start": "q0",
+        "accepts": ["q2"],
+        "cells": {
+            "q0": {"a": "q0", "b": "q0, q1"},
+            "q1": {"a": "q2", "b": ""},
+            "q2": {"a": "", "b": ""},
+        },
+    },
+    "same-first-last": {
+        "id": "same-first-last",
+        "title": "First and last symbol are equal",
+        "description": "Two guessing branches (start with 0 / start with 1) over {0,1}.",
+        "states": "q0, q1, q2, q3, q4",
+        "alphabet": "0, 1",
+        "start": "q0",
+        "accepts": ["q2", "q4"],
+        "cells": {
+            "q0": {"0": "q1", "1": "q3"},
+            "q1": {"0": "q1, q2", "1": "q1"},
+            "q2": {"0": "", "1": ""},
+            "q3": {"0": "q3", "1": "q3, q4"},
+            "q4": {"0": "", "1": ""},
+        },
+    },
+    "length-mod-2-or-3": {
+        "id": "length-mod-2-or-3",
+        "title": "Length divisible by 2 or 3 (unary)",
+        "description": "Union of two cycles over {a}; the start state branches non-deterministically.",
+        "states": "s, p0, p1, r0, r1, r2",
+        "alphabet": "a",
+        "start": "s",
+        "accepts": ["s", "p0", "r0"],
+        "cells": {
+            "s": {"a": "p1, r1"},
+            "p0": {"a": "p1"},
+            "p1": {"a": "p0"},
+            "r0": {"a": "r1"},
+            "r1": {"a": "r2"},
+            "r2": {"a": "r0"},
+        },
+    },
 }
 
-ALL_PRESET_IDS = [e.id for e in EXAMPLES] + list(EXTRA_PRESETS.keys())
+ALL_PRESET_IDS = ["custom"] + [e.id for e in EXAMPLES] + [k for k in EXTRA_PRESETS if k != "custom"]
+
 PRESET_TITLES = {e.id: e.title for e in EXAMPLES}
 for pid, pdata in EXTRA_PRESETS.items():
     PRESET_TITLES[pid] = pdata["title"]
@@ -284,23 +377,28 @@ else:
 # ---------------------------------------------------------------------------
 
 # Brand Header
-st.markdown(
-    '<div class="brand"><h1>Subset Lab</h1><p>Watch an NFA collapse into a DFA.</p></div>',
-    unsafe_allow_html=True,
-)
+col_brand, col_theme = st.columns([6, 1], vertical_alignment="center")
+with col_brand:
+    st.markdown(
+        '<div class="brand"><h1>Automata Workbench</h1>'
+        "<p>NFA to DFA conversion by subset construction</p></div>",
+        unsafe_allow_html=True,
+    )
+with col_theme:
+    st.toggle("Dark mode", key="dark_mode")
 
 # SECTION 1: Master NFA Editor & Configuration Deck
-with st.container(border=True):
-    col_hdr, col_actions = st.columns([3, 2])
+with st.container(border=True, key="card-editor"):
+    col_hdr, col_actions = st.columns([3, 2], vertical_alignment="center")
     with col_hdr:
-        st.markdown("### 🛠 NFA Editor & Configuration")
+        st.markdown("### NFA Editor & Configuration")
     with col_actions:
-        btn_col1, btn_col2 = st.columns(2)
-        btn_col1.button("⚡ Convert to DFA", key="convert_btn", type="primary", on_click=on_convert, use_container_width=True)
-        btn_col2.button("↺ Reset editor", key="reset_btn", on_click=on_reset, use_container_width=True)
+        btn_col1, btn_col2 = st.columns(2, gap="small")
+        btn_col1.button("Convert to DFA", key="convert_btn", type="primary", on_click=on_convert, use_container_width=True)
+        btn_col2.button("Reset editor", key="reset_btn", on_click=on_reset, use_container_width=True)
 
     # 2-column layout inside Editor: Left = Definition inputs; Right = Transition Table
-    col_def, col_trans = st.columns([1, 1], gap="medium")
+    col_def, col_trans = st.columns([1, 1.25], gap="large")
 
     with col_def:
         st.selectbox(
@@ -327,33 +425,34 @@ with st.container(border=True):
                 st.error(err)
 
     with col_trans:
-        col_t_title, col_t_mode = st.columns([2, 3])
-        with col_t_title:
-            st.markdown("##### Transition Table $\\delta(state, symbol)$")
-        with col_t_mode:
-            grid_mode = st.radio(
-                "Entry mode:",
-                options=["Choose states (Multi-select)", "Type names (Text input)"],
-                horizontal=True,
-                key="grid_input_mode",
-            )
+        st.markdown("##### Transition table  δ(state, symbol)")
+        grid_mode = st.radio(
+            "Entry mode",
+            options=["Choose states", "Type names"],
+            horizontal=True,
+            key="grid_input_mode",
+        )
 
         if len(declared_states) > 30 or len(declared_alphabet) > 10:
             st.info("Grid capped at 30 states × 10 symbols.")
         elif declared_states and declared_alphabet:
             # Header row
             header_cols = st.columns([1] + [2] * len(declared_alphabet))
-            header_cols[0].markdown("**State**")
+            header_cols[0].markdown('<div class="grid-head">State</div>', unsafe_allow_html=True)
             for i, a in enumerate(declared_alphabet):
-                header_cols[i + 1].markdown(f"**{a}**")
+                header_cols[i + 1].markdown(
+                    f'<div class="grid-head">{html.escape(a)}</div>', unsafe_allow_html=True
+                )
 
             # Data rows
             for s in declared_states:
-                r_cols = st.columns([1] + [2] * len(declared_alphabet))
-                r_cols[0].markdown(f"**{s}**")
+                r_cols = st.columns([1] + [2] * len(declared_alphabet), vertical_alignment="center")
+                r_cols[0].markdown(
+                    f'<div class="grid-state">{html.escape(s)}</div>', unsafe_allow_html=True
+                )
                 for i, a in enumerate(declared_alphabet):
                     cell_val = st.session_state.get(f"cell_{s}_{a}", "")
-                    if grid_mode.startswith("Choose"):
+                    if grid_mode == "Choose states":
                         # Multiselect mode: select from declared states
                         parsed = [t for t in split_list(cell_val) if t in declared_states]
                         r_cols[i + 1].multiselect(
@@ -377,8 +476,8 @@ with st.container(border=True):
 col_show_nfa, col_show_dfa = st.columns([1, 1], gap="medium")
 
 with col_show_nfa:
-    with st.container(border=True):
-        st.markdown("### 📡 NFA State Diagram")
+    with st.container(border=True, key="card-nfa-diagram"):
+        st.markdown("### NFA State Diagram")
         live_form = get_current_form()
         live_res = build_nfa(live_form)
         live_nfa = live_res.nfa
@@ -413,20 +512,20 @@ with col_show_nfa:
                 glow_states = set(inspected.members)
 
         if live_nfa is not None:
-            st.graphviz_chart(nfa_to_dot(live_nfa, glow=glow_states), use_container_width=True)
+            st.graphviz_chart(nfa_to_dot(live_nfa, glow=glow_states, dark=DARK), use_container_width=True)
         else:
             st.info("Enter a valid NFA in the editor to see its diagram.")
 
 with col_show_dfa:
-    with st.container(border=True):
-        col_dfa_title, col_dfa_dl = st.columns([3, 2])
+    with st.container(border=True, key="card-dfa-diagram"):
+        col_dfa_title, col_dfa_dl = st.columns([3, 2], vertical_alignment="center")
         with col_dfa_title:
-            st.markdown("### 🕸 DFA State Diagram & Construction")
+            st.markdown("### DFA Diagram & Construction")
         with col_dfa_dl:
             if is_fresh and conv_res is not None:
                 dfa_json_str = json.dumps(dataclasses.asdict(conv_res.dfa), ensure_ascii=False, indent=2)
                 st.download_button(
-                    "Download DFA (JSON)",
+                    "Download JSON",
                     data=dfa_json_str,
                     file_name="dfa.json",
                     mime="application/json",
@@ -435,7 +534,7 @@ with col_show_dfa:
                 )
             else:
                 st.download_button(
-                    "Download DFA (JSON)",
+                    "Download JSON",
                     data="",
                     file_name="dfa.json",
                     mime="application/json",
@@ -456,74 +555,74 @@ with col_show_dfa:
                     run_trace = simulate_dfa(conv_res.dfa, t_text)
                     path_trace = [(p.source, p.target) for p in run_trace.path]
 
-            dfa_dot = dfa_to_dot(conv_res, upto=step_val, path=path_trace, focus_step=focus_step)
+            dfa_dot = dfa_to_dot(conv_res, upto=step_val, path=path_trace, focus_step=focus_step, dark=DARK)
             st.graphviz_chart(dfa_dot, use_container_width=True)
+        else:
+            st.info("Press Convert to generate the DFA diagram.")
 
-            # Step Player Controls directly under the DFA graph
-            st.markdown("##### ⏯ Step Player")
-            cur_step = max(0, min(step_val, total_steps))
+
+# SECTION 2b: Construction step player (full width: controls left, log right)
+with st.container(border=True, key="card-construction"):
+    st.markdown("### Construction Steps")
+    col_ctrl, col_log = st.columns([1, 1.4], gap="large")
+    ready = is_fresh and conv_res is not None
+    total_steps = len(conv_res.steps) if ready else 0
+    cur_step = max(0, min(st.session_state.get("step", total_steps), total_steps)) if ready else 0
+
+    with col_ctrl:
+        st.markdown("##### Step player")
+        if ready:
             st.session_state["step"] = cur_step
             st.session_state["step_slider"] = cur_step
+        col_r, col_p, col_play, col_n = st.columns(4)
+        col_r.button("Reset", key="step_reset", on_click=on_step_reset, disabled=not ready, use_container_width=True)
+        col_p.button("Prev", key="step_prev", on_click=on_step_prev, disabled=not ready, use_container_width=True)
+        col_play.button("Play", key="step_play", on_click=on_step_play, args=(total_steps,), disabled=not ready, use_container_width=True)
+        col_n.button("Next", key="step_next", on_click=on_step_next, args=(total_steps,), disabled=not ready, use_container_width=True)
+        st.slider(
+            "Construction step",
+            min_value=0,
+            max_value=max(1, total_steps),
+            key="step_slider",
+            on_change=on_slider_change,
+            disabled=not ready,
+        )
+        st.markdown(
+            f'<span class="step-counter">{cur_step} / {total_steps}</span>',
+            unsafe_allow_html=True,
+        )
+        if not ready:
+            st.info("Press Convert to generate the DFA and step through the construction.")
 
-            col_r, col_p, col_play, col_n, col_cnt = st.columns([1, 1, 1, 1, 2])
-            col_r.button("⏮ Reset", key="step_reset", on_click=on_step_reset, use_container_width=True)
-            col_p.button("◀ Prev", key="step_prev", on_click=on_step_prev, use_container_width=True)
-            col_play.button("▶ Play", key="step_play", on_click=on_step_play, args=(total_steps,), use_container_width=True)
-            col_n.button("Next ▶", key="step_next", on_click=on_step_next, args=(total_steps,), use_container_width=True)
-            with col_cnt:
-                st.markdown(
-                    f'<span class="step-counter">{cur_step} / {total_steps}</span>',
-                    unsafe_allow_html=True,
-                )
-
-            st.slider(
-                "Construction Step",
-                min_value=0,
-                max_value=max(1, total_steps),
-                key="step_slider",
-                on_change=on_slider_change,
-            )
-
-            st.markdown("##### Step-by-Step Construction Log")
+    with col_log:
+        st.markdown("##### Construction log")
+        log_box = st.container(height=300, border=True, key="logbox")
+        if ready:
             if cur_step == 0:
-                st.markdown(
+                log_box.markdown(
                     '<div class="step-item active"><strong>Step 0:</strong> Initial DFA start state <code>'
                     + conv_res.dfa.start
-                    + "</code> registered. Press <b>Next ▶</b> or <b>Play ▶</b> to process transitions.</div>",
+                    + "</code> registered. Press <b>Next</b> or <b>Play</b> to process transitions.</div>",
                     unsafe_allow_html=True,
                 )
             else:
                 for idx in range(cur_step):
-                    st_item = conv_res.steps[idx]
-                    sentence = describe_step(st_item, conv_res.dfa)
-                    if idx == cur_step - 1:
-                        st.markdown(
-                            f'<div class="step-item active"><strong>▶ Step {idx + 1}:</strong> {sentence}</div>',
-                            unsafe_allow_html=True,
-                        )
-                    else:
-                        st.markdown(
-                            f'<div class="step-item"><strong>Step {idx + 1}:</strong> {sentence}</div>',
-                            unsafe_allow_html=True,
-                        )
+                    sentence = describe_step(conv_res.steps[idx], conv_res.dfa)
+                    cls = "step-item active" if idx == cur_step - 1 else "step-item"
+                    log_box.markdown(
+                        f'<div class="{cls}"><strong>Step {idx + 1}:</strong> {sentence}</div>',
+                        unsafe_allow_html=True,
+                    )
         else:
-            col_r, col_p, col_play, col_n, col_cnt = st.columns([1, 1, 1, 1, 2])
-            col_r.button("⏮ Reset", key="step_reset", disabled=True, use_container_width=True)
-            col_p.button("◀ Prev", key="step_prev", disabled=True, use_container_width=True)
-            col_play.button("▶ Play", key="step_play", disabled=True, use_container_width=True)
-            col_n.button("Next ▶", key="step_next", disabled=True, use_container_width=True)
-            with col_cnt:
-                st.markdown('<span class="step-counter">0 / 0</span>', unsafe_allow_html=True)
-            st.slider("Construction Step", min_value=0, max_value=1, key="step_slider", disabled=True)
-            st.info("Press Convert to generate the DFA diagram and step through the construction.")
+            log_box.caption("No construction yet.")
 
 
 # SECTION 3: Transition Tables (NFA Table on Left, DFA Table on Right)
 col_tbl_nfa, col_tbl_dfa = st.columns([1, 1], gap="medium")
 
 with col_tbl_nfa:
-    with st.container(border=True):
-        st.markdown("### 📋 NFA Transition Table")
+    with st.container(border=True, key="card-nfa-table"):
+        st.markdown("### NFA Transition Table")
         if live_nfa is not None:
             nfa_rows = []
             for s in live_nfa.states:
@@ -531,7 +630,7 @@ with col_tbl_nfa:
                 if s == live_nfa.start:
                     prefix += "→ "
                 if s in live_nfa.accepts:
-                    prefix += "* "
+                    prefix += "\\* "
                 row = {"State": f"{prefix}{s}"}
                 for a in live_nfa.alphabet:
                     targets = live_nfa.transitions.get(s, {}).get(a, [])
@@ -542,8 +641,8 @@ with col_tbl_nfa:
             st.info("Enter a valid NFA in the editor to view its transition table.")
 
 with col_tbl_dfa:
-    with st.container(border=True):
-        st.markdown("### 📊 DFA Transition Table")
+    with st.container(border=True, key="card-dfa-table"):
+        st.markdown("### DFA Transition Table")
         if is_fresh and conv_res is not None:
             alias_map = {s.id: s.alias for s in conv_res.dfa.states}
             dfa_rows = []
@@ -554,7 +653,7 @@ with col_tbl_dfa:
                     target_id = conv_res.dfa.transitions[s.id][a]
                     target_alias = alias_map.get(target_id, "")
                     row[a] = f"{target_alias} {target_id}"
-                row["Accepting"] = "✓" if s.is_accepting else ""
+                row["Accepting"] = "Yes" if s.is_accepting else ""
                 dfa_rows.append(row)
             st.table(dfa_rows)
         else:
@@ -565,8 +664,8 @@ with col_tbl_dfa:
 col_test_single, col_test_batch = st.columns([1, 1], gap="medium")
 
 with col_test_single:
-    with st.container(border=True):
-        st.markdown("### 🧪 Single String Testing")
+    with st.container(border=True, key="card-single-test"):
+        st.markdown("### Single String Testing")
         st.text_input("Input string", key="test_input")
         st.button(
             "Run string test",
@@ -615,13 +714,13 @@ with col_test_single:
 
                 if d_run.accepted == n_run.accepted and d_run.error is None and n_run.error is None:
                     st.markdown(
-                        '<span class="agree-badge">NFA and DFA agree ✓</span>',
+                        '<span class="agree-badge">NFA and DFA agree</span>',
                         unsafe_allow_html=True,
                     )
 
 with col_test_batch:
-    with st.container(border=True):
-        st.markdown("### 📑 Batch Test Suite")
+    with st.container(border=True, key="card-batch-test"):
+        st.markdown("### Batch Test Suite")
         st.text_area(
             "Batch strings (one per line, <empty> for empty string)",
             key="batch_input",

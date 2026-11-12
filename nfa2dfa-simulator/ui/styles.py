@@ -1,108 +1,153 @@
-"""The glassmorphism look. If a CSS selector stops matching in a newer Streamlit version,
-inspect the page (F12) and adjust the selector — do not remove the design."""
+"""Flat, neutral visual style with light and dark palettes.
 
-GLASS_CSS = """
-<style>
+If a CSS selector stops matching in a newer Streamlit version, inspect the page (F12)
+and adjust the selector."""
+
+LIGHT_VARS = """
+  --ink:#0f172a; --muted:#64748b; --accent:#1d4ed8; --accent2:#1e40af;
+  --ok:#047857; --ok-bg:#ecfdf5; --ok-bd:#a7f3d0;
+  --bad:#b91c1c; --bad-bg:#fef2f2; --bad-bd:#fecaca;
+  --on-accent:#ffffff; --tint:#eff6ff; --tint-bd:#bfdbfe;
+  --border:#e2e8f0; --surface:#ffffff; --surface2:#f1f5f9; --bg:#f8fafc;
+"""
+
+DARK_VARS = """
+  --ink:#e2e8f0; --muted:#94a3b8; --accent:#60a5fa; --accent2:#93c5fd;
+  --ok:#34d399; --ok-bg:#064e3b; --ok-bd:#047857;
+  --bad:#f87171; --bad-bg:#450a0a; --bad-bd:#991b1b;
+  --on-accent:#0b1220; --tint:#172554; --tint-bd:#1e40af;
+  --border:#334155; --surface:#1e293b; --surface2:#0f172a; --bg:#0b1220;
+"""
+
+BASE_CSS = """
 :root{
-  --ink:#1f2340; --muted:#5d6285; --accent:#5b5bd6; --accent2:#8b5cf6;
-  --teal:#0d9488; --rose:#e11d48;
-  --font-ui:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-ui:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
   --font-mono:"JetBrains Mono",Consolas,"SFMono-Regular",Menlo,monospace;
 }
-.stApp{ background:#f6f3ff; color:var(--ink); font-family:var(--font-ui); }
-[data-testid="stAppViewContainer"], [data-testid="stHeader"]{ background:transparent; }
+html, body, .stApp, [data-testid="stAppViewContainer"]{ background:var(--bg) !important; }
+.stApp, .stApp p, .stApp label, .stApp span, .stApp li, .stApp h1, .stApp h2, .stApp h3,
+.stApp h4, .stApp h5, .stApp h6, .stApp div[data-testid="stMarkdownContainer"]{ color:var(--ink); }
+.stApp{ font-family:var(--font-ui); }
+[data-testid="stHeader"]{ background:transparent !important; }
+.block-container{ padding-top:2.2rem; padding-bottom:3rem; max-width:1360px; }
 
-/* Aurora: four big blurred blobs drifting very slowly (transform only) */
-.stApp::before{
-  content:""; position:fixed; inset:-25%; z-index:0; pointer-events:none;
-  background:
-    radial-gradient(38% 38% at 15% 20%, #c9f2e4 0%, transparent 70%),
-    radial-gradient(38% 38% at 85% 15%, #d9ccff 0%, transparent 70%),
-    radial-gradient(38% 38% at 20% 85%, #ffd9c7 0%, transparent 70%),
-    radial-gradient(38% 38% at 80% 80%, #cfe6ff 0%, transparent 70%);
-  filter:blur(30px);
-  animation:drift 50s ease-in-out infinite alternate;
+/* Cards: containers created with a key starting "card-" (see app.py) */
+[class*="st-key-card-"]{
+  background:var(--surface);
+  border:1px solid var(--border) !important;
+  border-radius:8px;
+  box-shadow:0 1px 2px rgba(15,23,42,.05);
+  padding:.7rem 1rem .9rem !important;
+  margin-bottom:.9rem;
 }
-@keyframes drift{ from{transform:translate3d(0,0,0) scale(1);} to{transform:translate3d(-4%,3%,0) scale(1.08);} }
-@media (prefers-reduced-motion: reduce){ .stApp::before{ animation:none; } }
-.block-container{ position:relative; z-index:1; padding-top:1.5rem; max-width:1440px; }
+.st-key-logbox{
+  background:var(--surface2) !important; border:1px solid var(--border) !important;
+  border-radius:6px; padding:.5rem !important;
+}
 
-/* Glass cards = bordered containers */
-[data-testid="stVerticalBlockBorderWrapper"]{
-  background:rgba(255,255,255,.58);
-  border:1px solid rgba(255,255,255,.75) !important;
-  border-radius:22px;
-  backdrop-filter:blur(18px) saturate(140%);
-  -webkit-backdrop-filter:blur(18px) saturate(140%);
-  box-shadow:0 10px 30px rgba(80,70,140,.10), inset 0 1px 0 rgba(255,255,255,.85);
-  padding:.5rem .7rem;
-  margin-bottom: 0.8rem;
-}
-@supports not (backdrop-filter: blur(1px)){
-  [data-testid="stVerticalBlockBorderWrapper"]{ background:rgba(255,255,255,.88); }
-}
+/* Headings */
+h3{ font-size:1.02rem !important; font-weight:600 !important; padding:.2rem 0 .5rem !important;
+    margin:0; border-bottom:1px solid var(--border); margin-bottom:.6rem !important; }
+h5{ font-size:.85rem !important; font-weight:600 !important;
+    letter-spacing:.01em; color:var(--muted) !important; margin:.4rem 0 .5rem !important; }
 
 /* Brand header */
-.brand h1{ margin:0; font-weight:800; letter-spacing:-.02em;
-  background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text;
-  background-clip:text; color:transparent; }
-.brand p{ margin:.1rem 0 1rem; color:var(--muted); font-size:1.05rem; }
+.brand{ display:flex; align-items:baseline; gap:.9rem; flex-wrap:wrap; }
+.brand h1{ margin:0; padding:0; font-weight:700; letter-spacing:-.01em; font-size:1.6rem; }
+.brand p{ margin:0; color:var(--muted) !important; font-size:.95rem; }
+
+/* Labels */
+[data-testid="stWidgetLabel"] p{ font-size:.82rem; font-weight:500; color:var(--muted) !important; }
+
+/* Inputs */
+[data-testid="stTextInputRootElement"], [data-testid="stTextAreaRootElement"],
+[data-testid="stSelectbox"] [role="group"], [data-testid="stMultiSelect"] [role="group"],
+[data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="textarea"]{
+  background:var(--surface) !important; color:var(--ink) !important;
+  border-color:var(--border) !important; border-radius:6px !important;
+}
+textarea{ background:transparent !important; }
+[data-baseweb="select"] input{ background:transparent !important; }
+input, textarea{ color:var(--ink) !important; -webkit-text-fill-color:var(--ink) !important; }
+[data-baseweb="select"] svg{ fill:var(--muted); }
+[data-baseweb="tag"]{ background:var(--accent) !important; border-radius:4px !important; }
+[data-baseweb="tag"], [data-baseweb="tag"] *, .stApp [data-testid="stMultiSelect"] span{ color:#fff !important; }
+[data-baseweb="tag"] svg, [data-testid="stMultiSelect"] span svg{ fill:#fff !important; }
+[data-baseweb="popover"] [role="listbox"], [data-baseweb="popover"] ul{ background:var(--surface) !important; }
+[data-baseweb="popover"] li{ color:var(--ink) !important; background:var(--surface) !important; }
+[data-baseweb="popover"] li:hover, [data-baseweb="popover"] li[aria-selected="true"]{ background:var(--tint) !important; }
 
 /* Buttons */
-.stButton>button[kind="primary"]{
-  background:linear-gradient(90deg,var(--accent),var(--accent2)); border:none; color:#fff;
-  border-radius:14px; box-shadow:0 6px 18px rgba(91,91,214,.35);
+.stButton>button, .stDownloadButton>button{
+  border-radius:6px; font-weight:500; background:var(--surface); color:var(--ink);
+  border:1px solid var(--border); box-shadow:none; min-height:2.4rem; white-space:nowrap;
 }
-.stButton>button{ border-radius:14px; }
+.stButton>button:hover:not(:disabled), .stDownloadButton>button:hover:not(:disabled){
+  border-color:var(--accent); color:var(--accent);
+}
+.stButton>button:disabled, .stDownloadButton>button:disabled{ opacity:.45; }
+.stButton>button[kind="primary"]{ background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); }
+.stButton>button[kind="primary"]:hover:not(:disabled){ background:var(--accent2); border-color:var(--accent2); color:var(--on-accent); }
+.stApp .stButton>button p, .stApp .stDownloadButton>button p{ color:var(--ink) !important; }
+.stApp .stButton>button[kind="primary"] p, .stApp .stButton>button[kind="primary"] *{ color:var(--on-accent) !important; }
+.stApp .stButton>button:hover:not(:disabled) p{ color:var(--accent) !important; }
+.stApp .stButton>button[kind="primary"]:hover:not(:disabled) p{ color:var(--on-accent) !important; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, [role="slider"]:focus-visible{
-  outline:3px solid var(--accent2) !important; outline-offset:2px;
+  outline:2px solid var(--accent) !important; outline-offset:2px;
 }
 
-/* Mono for sets / tables / inputs that hold state names */
+/* Mono for state names */
 [data-testid="stTable"] td, [data-testid="stTable"] th, code{ font-family:var(--font-mono); }
-.stTextInput input{ font-family:var(--font-mono); }
+.stTextInput input, textarea{ font-family:var(--font-mono); }
+code{ background:var(--surface2) !important; color:var(--ink) !important; }
 
-/* Table wrapping & clean horizontal scroll */
-[data-testid="stTable"] {
-  overflow-x: auto !important;
-  max-width: 100%;
-}
-[data-testid="stTable"] table {
-  width: 100% !important;
-}
-[data-testid="stTable"] th, [data-testid="stTable"] td {
-  white-space: nowrap !important;
-  padding: 0.45rem 0.75rem !important;
+/* Tables */
+[data-testid="stTable"]{ overflow-x:auto !important; max-width:100%; }
+[data-testid="stTable"] table{ width:100% !important; border-collapse:collapse; background:var(--surface); }
+[data-testid="stTable"] th{ background:var(--surface2) !important; font-weight:600; font-size:.8rem;
+  color:var(--muted) !important; }
+[data-testid="stTable"] td{ color:var(--ink) !important; font-size:.88rem; }
+[data-testid="stTable"] th, [data-testid="stTable"] td{
+  white-space:nowrap !important; padding:.5rem .8rem !important; border:1px solid var(--border) !important;
 }
 
-/* Result badges */
-.test-result{ display:inline-block; padding:.45rem 1rem; border-radius:999px; font-weight:800;
-  font-size:1.05rem; margin:.4rem 0; }
-.test-result.ok{ background:rgba(13,148,136,.14); color:#0b6f66; border:1px solid rgba(13,148,136,.4); }
-.test-result.bad{ background:rgba(225,29,72,.10); color:#b4143b; border:1px solid rgba(225,29,72,.35); }
-.agree-badge{ display:inline-block; padding:.2rem .7rem; border-radius:999px; font-size:.85rem;
-  background:rgba(91,91,214,.10); color:#4343b5; border:1px solid rgba(91,91,214,.3); }
-.step-counter{ font-family:var(--font-mono); font-weight:700; color:var(--accent);
-  background:rgba(91,91,214,.10); padding:.2rem .7rem; border-radius:10px; font-size:1.05rem; }
+/* Transition-table editor grid: vertically centre every cell, uniform row height */
+.grid-state{ font-family:var(--font-mono); font-weight:600; min-height:2.4rem; display:flex; align-items:center; }
+.grid-head{ font-family:var(--font-mono); font-weight:600; font-size:.85rem; color:var(--muted);
+  padding-bottom:.2rem; }
 
-/* Construction step items */
-.step-item {
-  padding: 0.5rem 0.8rem;
-  margin-bottom: 0.4rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(91, 91, 214, 0.12);
-  border-left: 4px solid var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.45;
-  word-break: normal;
-  overflow-wrap: break-word;
+/* Alerts */
+[data-testid="stAlert"]{ border-radius:6px; background:var(--surface2) !important; border:1px solid var(--border); }
+[data-testid="stAlert"] *{ color:var(--ink) !important; }
+
+/* Slider / radio accents */
+[data-testid="stSlider"] [role="slider"]{ background:var(--accent) !important; }
+[data-testid="stSlider"] [data-testid="stTickBarMin"], [data-testid="stSlider"] [data-testid="stTickBarMax"]{ color:var(--muted); }
+
+/* Badges */
+.test-result{ display:inline-block; padding:.3rem .8rem; border-radius:4px; font-weight:600; font-size:.95rem; margin:.4rem 0; }
+.test-result.ok{ background:var(--ok-bg); color:var(--ok) !important; border:1px solid var(--ok-bd); }
+.test-result.bad{ background:var(--bad-bg); color:var(--bad) !important; border:1px solid var(--bad-bd); }
+.agree-badge{ display:inline-block; padding:.15rem .6rem; border-radius:4px; font-size:.82rem;
+  background:var(--tint); color:var(--accent) !important; border:1px solid var(--tint-bd); }
+.step-counter{ display:inline-block; font-family:var(--font-mono); font-weight:600; color:var(--accent) !important;
+  background:var(--tint); border:1px solid var(--tint-bd); padding:.35rem .7rem; border-radius:6px; font-size:.9rem;
+  min-height:2.4rem; line-height:1.6; }
+
+/* Construction log */
+.step-item{
+  padding:.5rem .8rem; margin-bottom:.4rem; border-radius:4px;
+  background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--muted);
+  font-size:.86rem; line-height:1.45; overflow-wrap:break-word;
 }
-.step-item.active {
-  background: rgba(91, 91, 214, 0.10);
-  border: 1px solid rgba(91, 91, 214, 0.35);
-  border-left: 4px solid var(--accent);
-  box-shadow: 0 2px 8px rgba(91, 91, 214, 0.12);
-}
-</style>
+.step-item.active{ background:var(--tint); border-color:var(--tint-bd); border-left:3px solid var(--accent); }
+.step-item strong{ color:var(--ink); }
+
+/* Graphviz area */
+[data-testid="stGraphVizChart"]{ display:flex; justify-content:center; padding:.3rem 0; }
 """
+
+
+def build_css(dark: bool) -> str:
+    """Return the <style> block for the chosen theme."""
+    return f"<style>:root{{{DARK_VARS if dark else LIGHT_VARS}}}{BASE_CSS}</style>"
