@@ -1,0 +1,22 @@
+# Virtual environments
+.venv/
+*/.venv/
+venv/
+*/venv/
+
+# Python cache
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+*/.pytest_cache/
+
+# Operating System files
+.DS_Store
+*/.DS_Store
+
+# Logs
+*.log
